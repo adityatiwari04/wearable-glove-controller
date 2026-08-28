@@ -10,7 +10,7 @@ env/
 ENV/
 
 # Python tools
-.pytest_cache/
+.pytest_cache/ 
 .mypy_cache/
 
 # IDE / Editor
