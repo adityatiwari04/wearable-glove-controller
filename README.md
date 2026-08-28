@@ -1,8 +1,18 @@
 # 🖐️ Wearable Glove Controller
 
-A wearable, sensor-based glove that allows users to control a computer using natural hand movements and touch gestures — without relying on a traditional mouse.
+A wearable, sensor-based glove that allows users to control a computer using natural hand movements and touch input.
 
-The system uses an **ESP32**, **MPU6050 accelerometer/gyroscope**, and **TTP223 touch sensor** to translate hand movements into cursor movements and touch gestures into mouse actions.
+The system uses an **ESP32**, **MPU6050 accelerometer/gyroscope**, and **TTP223 touch sensor** to translate hand movements into cursor movement and touch input into mouse actions.
+
+The project also explores **wireless Wi-Fi operation** and **Android phone-to-laptop interaction** using scrcpy.
+
+---
+
+## 🎥 Project Demonstration
+
+Watch the project demonstration on LinkedIn:
+
+[▶️ Watch the Wearable Glove Controller Demo](https://lnkd.in/p/gGEYcJfd)
 
 ---
 
@@ -10,49 +20,54 @@ The system uses an **ESP32**, **MPU6050 accelerometer/gyroscope**, and **TTP223 
 
 Traditional computer mice require a physical surface and keep the user relatively close to the interaction area.
 
-This project explores a different approach:
+This project explores an alternative:
 
 > **What if natural hand movements could become the interface?**
 
-The glove tracks the orientation of the user's hand using the MPU6050 and sends the calculated movement data to a computer through the ESP32.
+The glove tracks the orientation of the user's hand using the MPU6050.
 
-The computer-side Python program converts this data into cursor movement and click actions.
+The ESP32 processes the sensor data and sends it to the computer.
+
+A Python program then converts the received data into cursor movement and mouse actions.
 
 ---
 
-## ✨ Features
+# ✨ Features
 
 - 🖐️ Hand-movement-based cursor control
 - 🎯 MPU6050-based orientation tracking
 - 👆 Touch-based left click
-- 🖱️ Gesture-based mouse interaction
+- 🖱️ Alternative mouse interaction
 - 📐 Adjustable cursor sensitivity
-- 🚫 Dead-zone filtering to reduce unwanted movement
+- 🚫 Dead-zone filtering
 - ⚡ Maximum cursor-speed limitation
 - 🔄 Adjustable cursor direction
-- 📡 ESP32-based wireless communication can be used for extended interaction distance
-- 🔋 Can be adapted for battery-powered wearable operation
-- 💻 Designed as an alternative interaction method to a traditional mouse
+- 🔌 USB serial communication
+- 📡 Alternative Wi-Fi-based communication
+- 🔋 Battery-powered operation can be explored
+- 📱 Android phone-to-laptop integration
+- 🖥️ Phone screen mirroring using scrcpy
 - 🤖 Hardware + software integration
+- 🔧 Modular architecture for future improvements
 
 ---
 
-## 🧩 Hardware Components
+# 🧩 Hardware Components
 
 | Component | Purpose |
 |---|---|
 | ESP32 | Main microcontroller and communication unit |
 | MPU6050 | Accelerometer and gyroscope for hand orientation |
-| TTP223 Touch Sensor | Detects touch gestures |
+| TTP223 | Capacitive touch sensor |
 | Glove | Wearable platform |
-| Battery / Power Source | Portable power for the glove |
+| Battery / Power Source | Portable power |
 | Connecting Wires | Electrical connections |
 
 ---
 
-## 🔌 Hardware Connections
+# 🔌 Hardware Connections
 
-### ESP32 ↔ MPU6050
+## MPU6050 → ESP32
 
 | MPU6050 | ESP32 |
 |---|---|
@@ -61,7 +76,7 @@ The computer-side Python program converts this data into cursor movement and cli
 | SDA | GPIO 21 |
 | SCL | GPIO 22 |
 
-### ESP32 ↔ TTP223
+## TTP223 → ESP32
 
 | TTP223 | ESP32 |
 |---|---|
@@ -69,9 +84,9 @@ The computer-side Python program converts this data into cursor movement and cli
 | GND | GND |
 | OUT | GPIO 4 |
 
-### Simplified Connection
+### Simplified Wiring
 
-
+```text
                  ESP32
               ┌──────────┐
               │          │
@@ -83,369 +98,346 @@ The computer-side Python program converts this data into cursor movement and cli
      3.3V ────│ 3V3      │──── VCC
      GND ─────│ GND      │──── GND
               └──────────┘
-## 🧠 How It Works
 
-The system works by combining hand-motion sensing, touch input, and computer-side software.
+For detailed wiring information:
+hardware/wiring.md
 
-### Working Flow
-
-
-Hand Movement
-      ↓
-   MPU6050
-      ↓
-Accelerometer + Gyroscope Data
-      ↓
-Complementary Filter
-      ↓
-Pitch & Roll Angles
-      ↓
-     ESP32
-      ↓
-Serial / Wireless Communication
-      ↓
-Python Program
-      ↓
-PyAutoGUI
-      ↓
-Computer Cursor
-
-
-1. Motion Detection
-The MPU6050 provides:
-Accelerometer measurements
-Gyroscope measurements
-The accelerometer helps estimate the hand orientation relative to gravity.
-The gyroscope measures angular velocity.
-
-2. Sensor Fusion
-The ESP32 combines accelerometer and gyroscope information using a complementary filter.
-This produces smoother pitch and roll estimates for cursor control.
-
-3. Data Transmission
-The ESP32 sends the calculated data to the computer using serial communication.
-The data format is:
-DATA,pitch,roll,touch
-Example:
-DATA,12.45,-8.21,0
-Where:
-pitch = calculated pitch angle
-roll = calculated roll angle
-touch = TTP223 touch state
-
-4. Computer-Side Processing
-The Python program:
-1. receives the ESP32 data and:
-2. Establishes the initial hand position.
-3. Calculates the difference from the neutral position.
-4. Applies a dead zone.
-5. Calculates cursor movement.
-6. Limits the maximum cursor speed.
-7. Applies direction settings.
-8. Moves the computer cursor using PyAutoGUI.
-9. Detects touch events.
-
-🖱️ Cursor Control
-The current implementation uses changes in hand orientation to control the cursor.
-Hand Action                                              Result
-Rotate/tilt hand horizontally                   Horizontal cursor movement
-Rotate/tilt hand vertically                     Vertical cursor movement
-Touch TTP223                                        Left-click event
-The exact cursor response can be adjusted using the Python configuration settings.
-
-👆 Touch Interaction
-The TTP223 touch sensor is connected to:
-TTP223 OUT → ESP32 GPIO 4
-When the sensor detects a touch, the ESP32 sends the touch state to the Python program.
-The current Python implementation detects a new touch and performs a left click.
-Additional gestures such as double-click, long-click/right-click, or triple-click can be implemented by extending the gesture-detection logic.
-
-🧮 Dead Zone
-A dead zone is used to ignore very small changes in hand orientation around the neutral position.
-For example:
-DEADZONE = 2.0
-This means small movements below the configured threshold are ignored.
-Increasing the dead zone makes the controller less sensitive to small unwanted movements.
-
-🎯 Cursor Sensitivity
-Cursor sensitivity can be changed in:
-python/cursor_controller.py
-Current settings:
-SENSITIVITY_X = 0.4
-SENSITIVITY_Y = 0.4
-Lower sensitivity
-Use lower values when you want to rotate your hand more before the cursor moves significantly.
-Example:
-SENSITIVITY_X = 0.25
-SENSITIVITY_Y = 0.25
-Higher sensitivity
-Use higher values when you want the cursor to respond more quickly to smaller hand movements.
-
-⚡ Maximum Cursor Speed
-The maximum cursor movement can be limited using:
-MAX_SPEED = 25
-Reducing this value can make cursor movement more controlled.
-
-🔄 Cursor Direction
-If the cursor moves in the opposite direction, change:
-INVERT_X = False
-INVERT_Y = False
-For example:
-INVERT_X = True
-will reverse the horizontal direction.
-
-🛠️ Software Requirements
+💻 Software Requirements
 Arduino IDE
-Required for programming the ESP32.
-You need:
-Arduino IDE
-ESP32 board support
-Wire library
-The Wire library is normally included with the Arduino environment.
-Python
-Install Python 3.
-Required Python packages:
-pyserial
-pyautogui
-Install them with:
-pip install pyserial pyautogui
-
-📥 Installation
-Step 1 — Install Arduino IDE
-Install Arduino IDE on your computer.
-Step 2 — Install ESP32 Board Support
-Open Arduino IDE.
-Go to:
+Arduino IDE is required to upload the ESP32 firmware.
+ESP32 Board Support
+In Arduino IDE:
 File → Preferences
-Add the ESP32 board manager URL:
+Add the following URL to Additional Boards Manager URLs:
 https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-Then go to:
+Then:
 Tools → Board → Boards Manager
 Search for:
 ESP32
-Install the ESP32 board package.
-Step 3 — Connect the ESP32
-Connect the ESP32 to your computer using a USB data cable.
-Step 4 — Select the ESP32 Board
-In Arduino IDE:
-Tools → Board
-Select the appropriate ESP32 board.
-Step 5 — Select the COM Port
-Go to:
-Tools → Port
-Select the COM port assigned to your ESP32.
-Step 6 — Upload the ESP32 Code
+Install:
+ESP32 by Espressif Systems
+🔌 USB Mode
+The USB version is the basic and currently documented wired implementation.
+Data Flow
+MPU6050 + TTP223
+        ↓
+      ESP32
+        ↓
+    USB Serial
+        ↓
+      Laptop
+        ↓
+Python Controller
+        ↓
+   PyAutoGUI
+        ↓
+Computer Cursor
+ESP32 Firmware
 Open:
 esp32/glove_controller.ino
-Copy the code into Arduino IDE.
-Click:
-Upload
+Upload it to the ESP32 using Arduino IDE.
+Select the appropriate:
+Board → ESP32 Dev Module
+and the correct COM port.
 
 🐍 Python Setup
-Open Command Prompt or Terminal.
+Python 3 is required for the computer-side controller.
 Install the required packages:
-pip install pyserial pyautogui
-Or install them from the requirements file:
 pip install -r python/requirements.txt
+The project uses:
+PySerial
+PyAutoGUI
 
-⚙️ Configure the COM Port
+🖱️ Running the USB Controller
 Open:
 python/cursor_controller.py
-Find:
+Before running it, check:
 COM_PORT = "COM5"
-Change COM5 to the COM port assigned to your ESP32.
-For example:
-COM_PORT = "COM3"
+Replace COM5 with the COM port assigned to your ESP32.
+Then run:
+python python/cursor_controller.py
+Keep the glove still when the program starts so the initial orientation can be established as the neutral position.
 
-▶️ How to Run
-1. Connect the Glove
-Connect:
-MPU6050
-TTP223
-ESP32
-according to the wiring diagram.
-2. Connect ESP32 to Computer
-Connect the ESP32 using a USB data cable.
-3. Upload the Firmware
-Upload:
-esp32/glove_controller.ino
-using Arduino IDE.
-4. Keep the Glove Still
-The ESP32 performs gyroscope calibration when it starts.
-Keep the glove completely still during calibration.
-5. Start Python
-Open a terminal in the Python directory.
+🎯 Cursor Configuration
+The following settings can be adjusted in:
+python/cursor_controller.py
+Sensitivity
+SENSITIVITY_X = 0.4
+SENSITIVITY_Y = 0.4
+Higher values increase cursor movement.
+Dead Zone
+DEADZONE = 2.0
+This helps ignore very small movements.
+Maximum Speed
+MAX_SPEED = 25
+This limits the maximum cursor movement.
+Direction
+INVERT_X = False
+INVERT_Y = False
+Change these to True if an axis moves in the opposite direction.
+
+📡 Wireless Wi-Fi Mode
+The project also includes an alternative Wi-Fi implementation.
+Instead of sending data through USB serial, the ESP32 sends data to the laptop using UDP over Wi-Fi.
+Wireless Data Flow
+MPU6050 + TTP223
+        ↓
+      ESP32
+        ↓
+    Wi-Fi / UDP
+        ↓
+      Laptop
+        ↓
+Python Controller
+        ↓
+   PyAutoGUI
+        ↓
+Computer Cursor
+Wireless Files
+wireless/
+├── esp32_wifi_controller.ino
+└── wifi_cursor_controller.py
+
+⚙️ Wi-Fi Setup
+Open:
+wireless/esp32_wifi_controller.ino
+Configure:
+const char* WIFI_SSID = "YOUR_WIFI_NAME";
+const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+
+IPAddress LAPTOP_IP(192, 168, 1, 100);
+Replace the Wi-Fi credentials with your network details.
+Replace LAPTOP_IP with the laptop's actual local IPv4 address.
+On Windows, use:
+ipconfig
+in Command Prompt to find the laptop's IPv4 address.
+The ESP32 and laptop should be able to communicate over the same Wi-Fi network.
+
+▶️ Run the Wi-Fi Controller
 Run:
-python cursor_controller.py
-6. Set the Neutral Position
-The initial pitch and roll values are treated as the neutral position.
-Keep your hand in your preferred starting position when the Python program begins.
-7. Control the Cursor
-Move or rotate your hand.
-The cursor will respond to the change in hand orientation.
-
-🧤 Recommended Sensor Placement
-MPU6050
-Place the MPU6050 on the back of the hand.
-This provides a convenient position for detecting overall hand orientation.
-TTP223
-Place the TTP223 on a convenient area of the palm or finger where it can easily be touched.
-ESP32
-Place the ESP32 on the back of the hand or wrist area.
-Secure the components properly and keep wires away from frequently bending joints.
-
-📊 System Data Flow
-┌──────────────────────┐
-│       MPU6050        │
-│ Accelerometer/Gyro   │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│        ESP32         │
-│ Sensor Processing    │
-│ Pitch/Roll           │
-│ Touch Detection      │
-└──────────┬───────────┘
-           │
-           │ USB Serial
-           ▼
-┌──────────────────────┐
-│   Python Controller  │
-│       PySerial       │
-│       PyAutoGUI      │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│    Computer Cursor   │
-└──────────────────────┘
-
-🔌 Why This Approach?
-This project explores an alternative interaction method that does not require continuously moving a physical mouse across a surface.
-Potential advantages include:
-Wearable interaction
-Reduced dependence on a mouse surface
-More freedom of hand movement
-Alternative computer input method
-Potential accessibility applications
-Potential for future wireless operation
-
-📡 Wireless Extension
-The current implementation uses USB serial communication.
-The ESP32 can potentially be extended to support wireless communication such as:
+python wireless/wifi_cursor_controller.py
+The Python program listens on UDP port:
+4210
+If the cursor does not respond, check the laptop IP, Wi-Fi connection, and firewall settings.
+USB vs Wi-Fi
+Mode
+Communication
+Main Advantage
+USB
+Serial
+Simple and reliable
 Wi-Fi
-Bluetooth
-Bluetooth HID
-A wireless implementation could remove the USB cable and provide greater freedom of movement.
-The usable range depends on the communication technology, environment, network configuration, and power source.
+UDP
+Wireless operation
+The practical operating distance depends on the Wi-Fi network, signal strength, obstacles, and environment.
 
-🔋 Portable Operation
-The wearable system can be adapted for battery-powered operation.
-A suitable rechargeable battery and power-management solution can make the glove more portable.
-The power system should be selected according to the voltage and current requirements of the ESP32 and connected sensors.
+📱 Phone-to-Laptop Integration
+The project can also demonstrate interaction with an Android smartphone while viewing its screen on a laptop.
+For this, the project uses scrcpy.
+scrcpy allows an Android device's screen to be displayed and controlled from a computer.
+Data Flow
+Android Phone
+      ↓
+USB Debugging
+      ↓
+    scrcpy
+      ↓
+    Laptop
+      ↓
+Phone Screen + Interaction
 
-🎥 Project Demonstration
-A demonstration video of the project will be added here.
-https://lnkd.in/p/gGEYcJfd
+🔧 Android Phone Setup
+1. Enable Developer Options
+On the Android phone:
+Settings → About Phone → Build Number
+Tap Build Number several times until Developer Options are enabled.
+The exact location can vary between Android manufacturers.
+2. Enable USB Debugging
+Go to:
+Settings → Developer Options → USB Debugging
+Enable USB Debugging.
+3. Install scrcpy
+Official repository:
 
-▶️ Watch Project Demonstration
-The demonstration can showcase:
-Wearable glove operation
-Hand-controlled cursor movement
-Touch interaction
-Computer control
+🔗 Genymobile/scrcpy⁠�
+Download the appropriate version for your operating system and extract it.
+4. Connect the Phone
+Connect the Android phone to the laptop using a USB data cable.
+Unlock the phone and accept the USB debugging authorization prompt if it appears.
+5. Start scrcpy
+Open the extracted scrcpy folder and run:
+scrcpy.exe
+The phone screen should appear on the laptop.
 
-📂 Repository Structure
+🖐️ Glove + Phone Interaction
+The glove provides an alternative input interface while scrcpy makes the smartphone screen visible on the laptop.
+Conceptually:
+Wearable Glove
+      ↓
+     ESP32
+      ↓
+Laptop Interaction
+      ↓
+    scrcpy
+      ↓
+Android Phone
+This allows the project to demonstrate interaction with both a computer and a smartphone using a wearable interface.
+Detailed phone setup:
+phone/phone_to_laptop.md
+
+🏗️ System Architecture
+                  USER
+                   │
+          ┌────────┴────────┐
+          │                 │
+          ▼                 ▼
+   Hand Movement          Touch
+          │                 │
+          ▼                 ▼
+      MPU6050             TTP223
+          │                 │
+          └────────┬────────┘
+                   ▼
+                 ESP32
+                   │
+          ┌────────┴────────┐
+          │                 │
+          ▼                 ▼
+       USB Serial        Wi-Fi / UDP
+          │                 │
+          └────────┬────────┘
+                   ▼
+             Laptop / PC
+                   │
+                   ▼
+            Python Controller
+                   │
+                   ▼
+               PyAutoGUI
+                   │
+                   ▼
+             User Interface
+
+Detailed architecture:
+docs/architecture.md
+
+🧮 Orientation Processing
+The MPU6050 provides accelerometer and gyroscope measurements.
+The project uses a complementary filter to combine the two sources and estimate hand orientation.
+The firmware uses:
+ALPHA = 0.96
+The accelerometer provides a long-term reference while the gyroscope provides short-term motion information.
+
+👆 Touch Interaction
+The TTP223 is connected to:
+GPIO 4
+The current Python implementation uses a touch transition to trigger a left-click.
+Touch
+  ↓
+TTP223
+  ↓
+ESP32
+  ↓
+Python
+  ↓
+Left Click
+Additional gesture recognition can be added in future versions.
+
+📁 Project Structure
 wearable-glove-controller/
 │
 ├── README.md
 │
 ├── esp32/
-│     glove_controller.ino
+│   └── glove_controller.ino
 │
 ├── python/
-│     cursor_controller.py
-│     requirements.txt
+│   ├── cursor_controller.py
+│   └── requirements.txt
 │
 ├── hardware/
 │   └── wiring.md
 │
+├── wireless/
+│   ├── esp32_wifi_controller.ino
+│   └── wifi_cursor_controller.py
+│
+├── phone/
+│   └── phone_to_laptop.md
+│
 ├── docs/
-    operation.md
-     architecture.md
-     troubleshooting.md
-
+│   ├── operation.md
+│   ├── architecture.md
+│   └── troubleshooting.md
+│
 ├── CHANGELOG.md
 ├── .gitignore
 └── LICENSE
 
-🔮 Future Improvements
-Possible future improvements include:
-📡 Wireless operation
-🔋 Integrated rechargeable battery
-📱 Improved smartphone control
-🖱️ Advanced mouse gestures
-👆 Long-touch/right-click
-👆 Double-click
-👆 Triple-click
-📜 Scroll gestures
-🤏 Pinch gestures
-🎮 Gaming-oriented controls
-🧠 Machine-learning-based gesture recognition
-🔧 Custom PCB design
-📦 Smaller wearable enclosure
-♿ Accessibility-focused interaction
-🔗 Multi-device interaction
-🎯 Potential Applications
-This concept can be explored for:
-Human-computer interaction
-Wearable technology
-Robotics
-Automation
-Accessibility
-Hands-free interaction
-Experimental input devices
-Smart interfaces
-Educational electronics projects
+🛠️ Troubleshooting
+For common hardware, Python, USB, and sensor problems, see:
+docs/troubleshooting.md
+Common checks:
+☐ ESP32 is powered
+☐ MPU6050 is connected correctly
+☐ TTP223 is connected correctly
+☐ Correct COM port selected
+☐ Baud rate is 115200
+☐ Python dependencies installed
+☐ Glove is still during calibration
+☐ Neutral position established
+☐ Wi-Fi credentials are correct for wireless mode
+☐ Laptop IP is correct for wireless mode
 
-⚠️ Current Limitations
-This project is currently a prototype.
-Performance can depend on:
-Sensor placement
-Sensor noise
-Calibration
-Hand orientation
-User movement
-Computer configuration
-Python environment
-Communication method
-Different users may require different sensitivity and dead-zone settings.
+📖 Documentation
+Detailed documentation is available here:
+Hardware
+hardware/wiring.md
+Operation Guide
+docs/operation.md
+System Architecture
+docs/architecture.md
+Troubleshooting
+docs/troubleshooting.md
+Phone Integration
+phone/phone_to_laptop.md
+Changelog
+CHANGELOG.md
+
+🔮 Future Development
+Possible future improvements include:
+Wireless phone interaction
+Bluetooth HID support
+Advanced gesture recognition
+Double-click gestures
+Right-click gestures
+Triple-click gestures
+Scroll gestures
+Pinch gestures
+Smartphone navigation
+Multi-device interaction
+Improved sensor fusion
+Custom PCB
+Better battery optimization
+Improved wearable design
+Machine-learning-based gesture recognition
+Completely wireless operation
 
 🤝 Contributing
-Contributions and suggestions are welcome.
-If you want to improve the project:
+Contributions, improvements, ideas, and experiments are welcome.
+If you want to contribute:
 Fork the repository.
 Create a new branch.
 Make your changes.
 Test the changes.
-Submit a Pull Request.
-Ideas for improving the hardware, software, gesture recognition, wireless communication, and wearable design are welcome.
+Submit a pull request.
 
-👨‍💻 Author
-Aditya Kumar Tiwari
-Mechatronics Engineering Student
-Interests
-Robotics
-AI & Computer Vision
-Embedded Systems
-Automation
-Human-Computer Interaction
+📄 License
+This project is licensed under the MIT License.
+See:
+LICENSE
 
-⭐ Support
-If you find this project interesting, consider giving the repository a ⭐ Star.
-Feedback, suggestions, and contributions are welcome.
-
-📜 License
-This project is released under the MIT License.
-See the LICENSE file for details
+🔗 Project Repository
+GitHub: https://github.com/adityatiwari04/wearable-glove-controller
+⭐ If You Find This Project Interesting
+Feel free to explore the code, build your own version, experiment with new interaction methods, and contribute improvements to the project.
