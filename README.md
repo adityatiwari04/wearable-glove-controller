@@ -362,20 +362,20 @@ wearable-glove-controller/
 ├── README.md
 │
 ├── esp32/
-│   └── glove_controller.ino
+│     glove_controller.ino
 │
 ├── python/
-│   ├── cursor_controller.py
-│   └── requirements.txt
+│     cursor_controller.py
+│     requirements.txt
 │
 ├── hardware/
 │   └── wiring.md
 │
 ├── docs/
-│   ├── operation.md
-│   ├── architecture.md
-│   └── troubleshooting.md
-│
+    operation.md
+     architecture.md
+     troubleshooting.md
+
 ├── CHANGELOG.md
 ├── .gitignore
 └── LICENSE
