@@ -117,9 +117,11 @@ Accelerometer measurements
 Gyroscope measurements
 The accelerometer helps estimate the hand orientation relative to gravity.
 The gyroscope measures angular velocity.
+
 2. Sensor Fusion
 The ESP32 combines accelerometer and gyroscope information using a complementary filter.
 This produces smoother pitch and roll estimates for cursor control.
+
 3. Data Transmission
 The ESP32 sends the calculated data to the computer using serial communication.
 The data format is:
@@ -130,6 +132,7 @@ Where:
 pitch = calculated pitch angle
 roll = calculated roll angle
 touch = TTP223 touch state
+
 4. Computer-Side Processing
 The Python program:
 1. receives the ESP32 data and:
@@ -344,7 +347,7 @@ The power system should be selected according to the voltage and current require
 
 🎥 Project Demonstration
 A demonstration video of the project will be added here.
-Demo Video
+https://lnkd.in/p/gGEYcJfd
 
 ▶️ Watch Project Demonstration
 The demonstration can showcase:
